@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, FileText, Image, Table, BarChart3, Tag, RefreshCw, Sparkles, Edit2, Edit3, Trash2, Save, ChevronLeft, ChevronRight } from 'lucide-react';
 import TableEditor from '../components/TableEditor';
-import FormulaEditor from '../components/FormulaEditor';
 import FlowchartEditor from '../components/FlowchartEditor';
 
 interface ExtractedCard {
@@ -53,9 +52,7 @@ const ProcessStep2 = () => {
   const [editingProcessedContent, setEditingProcessedContent] = useState<string>('');
   const [editingProcessedTags, setEditingProcessedTags] = useState<string[]>([]);
 
-  // 公式编辑器状态
-  const [showFormulaEditor, setShowFormulaEditor] = useState<boolean>(false);
-  const [formulaEditingCardId, setFormulaEditingCardId] = useState<string | null>(null);
+
 
   // 流程图编辑器状态
   const [showFlowchartEditor, setShowFlowchartEditor] = useState<boolean>(false);
