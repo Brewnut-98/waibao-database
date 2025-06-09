@@ -394,46 +394,7 @@ const ProcessStep2 = () => {
     });
   };
 
-  // 公式编辑器相关函数
-  const handleOpenFormulaEditor = (cardId: string) => {
-    setFormulaEditingCardId(cardId);
-    setShowFormulaEditor(true);
-  };
 
-  const handleCloseFormulaEditor = () => {
-    setShowFormulaEditor(false);
-    setFormulaEditingCardId(null);
-  };
-
-  const handleSaveFormula = (newContent: string) => {
-    if (formulaEditingCardId) {
-      setProcessedCards(prev =>
-        prev.map(c =>
-          c.id === formulaEditingCardId ? { ...c, content: newContent } : c
-        )
-      );
-    }
-  };
-
-  const handleSaveFormulaTags = (newTags: string[]) => {
-    if (formulaEditingCardId) {
-      setProcessedCards(prev =>
-        prev.map(c =>
-          c.id === formulaEditingCardId ? { ...c, tags: newTags } : c
-        )
-      );
-    }
-  };
-
-  const handleSaveFormulaTitle = (newTitle: string) => {
-    if (formulaEditingCardId) {
-      setProcessedCards(prev =>
-        prev.map(c =>
-          c.id === formulaEditingCardId ? { ...c, title: newTitle } : c
-        )
-      );
-    }
-  };
 
   // 流程图编辑器相关函数
   const handleOpenFlowchartEditor = (cardId: string) => {
@@ -597,7 +558,8 @@ const ProcessStep2 = () => {
           c.id === card.id ? {
             ...c,
             title: editingProcessedTitle,
-            content: editingProcessedContent,
+            // 公式卡片不修改内容，其他类型卡片修改内容
+            content: card.type === 'formula' ? c.content : editingProcessedContent,
             tags: editingProcessedTags
           } : c
         )
@@ -688,9 +650,7 @@ const ProcessStep2 = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (card.type === 'formula') {
-                    handleOpenFormulaEditor(card.id);
-                  } else if (card.type === 'chart') {
+                  if (card.type === 'chart') {
                     handleOpenFlowchartEditor(card.id);
                   } else {
                     handleStartEdit();
@@ -698,9 +658,7 @@ const ProcessStep2 = () => {
                 }}
                 className="p-1 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                 title={
-                  card.type === 'formula' ? '编辑公式' :
-                  card.type === 'chart' ? '编辑流程图' :
-                  '编辑'
+                  card.type === 'chart' ? '编辑流程图' : '编辑'
                 }
               >
                 <Edit3 className="h-4 w-4" />
@@ -717,6 +675,16 @@ const ProcessStep2 = () => {
                 content={editingProcessedContent}
                 onChange={(newContent: string) => setEditingProcessedContent(newContent)}
               />
+            ) : card.type === 'formula' ? (
+              // 公式卡片编辑时内容不可编辑，只显示
+              <div className="bg-orange-50 border border-orange-200 rounded p-3">
+                <div className="font-mono text-sm whitespace-pre-wrap text-orange-900">
+                  {card.content}
+                </div>
+                <div className="text-xs text-orange-600 mt-2 italic">
+                  公式内容不可编辑，只能修改标题和标签
+                </div>
+              </div>
             ) : (
               <textarea
                 value={editingProcessedContent}
@@ -969,19 +937,7 @@ const ProcessStep2 = () => {
         </div>
       </div>
 
-      {/* 公式编辑器浮窗 */}
-      {showFormulaEditor && formulaEditingCardId && (
-        <FormulaEditor
-          content={processedCards.find(c => c.id === formulaEditingCardId)?.content || ''}
-          onChange={handleSaveFormula}
-          onClose={handleCloseFormulaEditor}
-          tags={processedCards.find(c => c.id === formulaEditingCardId)?.tags || []}
-          onTagsChange={handleSaveFormulaTags}
-          title={processedCards.find(c => c.id === formulaEditingCardId)?.title || ''}
-          onTitleChange={handleSaveFormulaTitle}
-          originalImage="/api/placeholder/400/300" // 这里可以传入实际的原始图片URL
-        />
-      )}
+
 
       {/* 流程图编辑器浮窗 */}
       {showFlowchartEditor && flowchartEditingCardId && (
