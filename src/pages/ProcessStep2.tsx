@@ -663,7 +663,6 @@ const ProcessStep2 = () => {
             )}
           </div>
         </div>
-
         {/* 正文内容 */}
         <div className="text-sm text-gray-600 mb-3">
           {isEditing ? (

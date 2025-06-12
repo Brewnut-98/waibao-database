@@ -40,8 +40,10 @@ const ProjectDetail = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadMode, setUploadMode] = useState<'single' | 'multiple'>('single');
   const [activeTab, setActiveTab] = useState<'upload' | 'write'>('upload');
-  const [selectedCategory, setSelectedCategory] = useState('环评报告');
+  const [selectedCategory, setSelectedCategory] = useState('报告书');
   const [selectedIndustry, setSelectedIndustry] = useState('家居行业');
+  const [selectedDocumentCategory, setSelectedDocumentCategory] = useState('可研报告');
+  const [customDocumentCategory, setCustomDocumentCategory] = useState('');
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [isProjectShared, setIsProjectShared] = useState(false);
   const [documentStatusCounts, setDocumentStatusCounts] = useState({
@@ -166,12 +168,19 @@ const ProjectDetail = () => {
 
   // 模板分类
   const categories = [
-    '环评报告',
-    '水土保持',
-    '安全评价',
-    '职业卫生',
+    '报告书',
+    '报告表',
     '应急预案',
     '验收报告'
+  ];
+
+  // 上传文档分类
+  const uploadDocumentCategories = [
+    '可研报告',
+    '环境检测报告',
+    '环境监测报告',
+    '技术方案',
+    '其他'
   ];
 
   // 模拟模板数据
@@ -180,7 +189,7 @@ const ProjectDetail = () => {
       id: '1',
       name: '建设项目环境影响报告书',
       description: '适用于大型建设项目的环境影响评价报告编制',
-      category: '环评报告',
+      category: '报告书',
       industry: '家居行业',
       thumbnail: '/api/placeholder/200/150',
       usageCount: '8万人使用'
@@ -189,71 +198,71 @@ const ProjectDetail = () => {
       id: '2',
       name: '建设项目环境影响报告表',
       description: '适用于中小型建设项目的环境影响评价',
-      category: '环评报告',
+      category: '报告表',
       industry: '建材行业',
       thumbnail: '/api/placeholder/200/150',
       usageCount: '12万人使用'
     },
     {
       id: '3',
-      name: '环境影响登记表',
-      description: '适用于环境影响很小的建设项目',
-      category: '环评报告',
-      industry: '电子原件和电子专用材料制造行业',
-      thumbnail: '/api/placeholder/200/150',
-      usageCount: '5万人使用'
-    },
-    {
-      id: '4',
       name: '水土保持方案报告书',
       description: '生产建设项目水土保持方案编制模板',
-      category: '水土保持',
-      industry: '家居行业',
+      category: '报告书',
+      industry: '电子原件和电子专用材料制造行业',
       thumbnail: '/api/placeholder/200/150',
       usageCount: '3万人使用'
     },
     {
-      id: '5',
-      name: '安全评价报告',
+      id: '4',
+      name: '安全预评价报告书',
       description: '建设项目安全预评价报告模板',
-      category: '安全评价',
+      category: '报告书',
       industry: '电器机械和器材制造行业',
       thumbnail: '/api/placeholder/200/150',
       usageCount: '2万人使用'
     },
     {
-      id: '6',
-      name: '职业病危害预评价',
-      description: '建设项目职业病危害预评价报告',
-      category: '职业卫生',
+      id: '5',
+      name: '环境影响报告表',
+      description: '适用于环境影响较小的建设项目',
+      category: '报告表',
       industry: '通用设备制造行业',
+      thumbnail: '/api/placeholder/200/150',
+      usageCount: '5万人使用'
+    },
+    {
+      id: '6',
+      name: '突发环境事件应急预案',
+      description: '企业突发环境事件应急预案编制模板',
+      category: '应急预案',
+      industry: '家居行业',
       thumbnail: '/api/placeholder/200/150',
       usageCount: '1.5万人使用'
     },
     {
       id: '7',
-      name: '家居制造业环评报告',
-      description: '专门针对家居制造业的环境影响评价模板',
-      category: '环评报告',
-      industry: '家居行业',
+      name: '建设项目竣工环境保护验收报告',
+      description: '建设项目竣工环境保护验收报告模板',
+      category: '验收报告',
+      industry: '建材行业',
       thumbnail: '/api/placeholder/200/150',
       usageCount: '6万人使用'
     },
     {
       id: '8',
-      name: '医院建设项目环评',
-      description: '医院类建设项目环境影响评价专用模板',
-      category: '环评报告',
-      industry: '医院行业',
+      name: '化工企业应急预案',
+      description: '化工企业突发环境事件应急预案专用模板',
+      category: '应急预案',
+      industry: '塑料制品行业',
       thumbnail: '/api/placeholder/200/150',
       usageCount: '4万人使用'
     },
     {
       id: '9',
-      name: '塑料制品安全评价',
-      description: '塑料制品行业安全预评价报告模板',
-      category: '安全评价',
-      industry: '塑料制品行业',
+      name: '污染治理设施验收报告',
+      description: '污染治理设施竣工验收报告模板',
+      category: '验收报告',
+      industry: '医院行业',
       thumbnail: '/api/placeholder/200/150',
       usageCount: '2.5万人使用'
     }
@@ -265,7 +274,7 @@ const ProjectDetail = () => {
       id: '1',
       title: '环保科技园区建设项目环境影响报告书',
       content: '本报告书针对环保科技园区建设项目进行全面的环境影响评价，分析项目建设和运营过程中可能产生的环境影响...',
-      category: '环评报告',
+      category: '报告书',
       industry: '家居行业',
       status: 'writing',
       lastModified: '2024-04-15 16:30',
@@ -277,7 +286,7 @@ const ProjectDetail = () => {
       id: '3',
       title: '环境风险评估报告',
       content: '本报告对项目可能产生的环境风险进行系统评估，包括环境风险识别、风险分析、风险评价及风险管理措施...',
-      category: '环评报告',
+      category: '报告书',
       industry: '家居行业',
       status: 'completed',
       lastModified: '2024-04-12 14:45',
@@ -320,13 +329,29 @@ const ProjectDetail = () => {
   };
 
   const handleFileSelect = (_file: File) => {
+    // 检查是否选择了"其他"但没有输入自定义类型
+    if (selectedDocumentCategory === '其他' && !customDocumentCategory.trim()) {
+      alert('请输入文档类型');
+      return;
+    }
+
     // 模拟生成新文档ID
     const newDocId = `doc_${Date.now()}`;
 
     setShowUploadModal(false);
 
-    // 跳转到第一步文本分割页面
-    navigate(`/my-workspace/process-step1/${newDocId}`);
+    // 确定最终的文档分类
+    const finalDocumentCategory = selectedDocumentCategory === '其他' 
+      ? customDocumentCategory.trim() 
+      : selectedDocumentCategory;
+
+    // 跳转到第一步文本分割页面，并传递文档分类信息
+    navigate(`/my-workspace/process-step1/${newDocId}`, {
+      state: { 
+        projectId,
+        documentCategory: finalDocumentCategory 
+      }
+    });
   };
 
   const handleViewDocument = (documentId: string) => {
@@ -764,6 +789,40 @@ const ProjectDetail = () => {
                   即将推出
                 </span>
               </button>
+            </div>
+
+            {/* 文档分类选择 */}
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                文档分类 *
+              </label>
+              <select
+                value={selectedDocumentCategory}
+                onChange={(e) => setSelectedDocumentCategory(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                {uploadDocumentCategories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+              
+              {/* 当选择"其他"时显示自定义输入框 */}
+              {selectedDocumentCategory === '其他' && (
+                <div className="mt-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    请输入文档类型 *
+                  </label>
+                  <input
+                    type="text"
+                    value={customDocumentCategory}
+                    onChange={(e) => setCustomDocumentCategory(e.target.value)}
+                    placeholder="请输入具体的文档类型..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="mt-6 rounded-lg border-2 border-dashed border-gray-300 p-6">

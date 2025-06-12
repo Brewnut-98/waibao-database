@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Plus, FolderOpen, Calendar, FileText, MoreVertical, Settings } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface Project {
   id: string;
@@ -11,6 +11,8 @@ interface Project {
   documentsCount: number;
   lastModified: string;
   isShared: boolean;
+  documentType: '报告书' | '报告表';
+  category: '生态类' | '工业类';
 }
 
 const PrivateDatabase = () => {
@@ -18,8 +20,44 @@ const PrivateDatabase = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [newProjectDescription, setNewProjectDescription] = useState('');
+  const [newProjectCategory, setNewProjectCategory] = useState('生态类');
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+  const [documentTypeFilter, setDocumentTypeFilter] = useState<'all' | '报告书' | '报告表'>('all');
+  const [categoryFilter, setCategoryFilter] = useState<'all' | '生态类' | '工业类'>('all');
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 监听路由状态，自动设置筛选条件
+  useEffect(() => {
+    if (location.state) {
+      const { documentTypeFilter: docTypeFilter, categoryFilter: catFilter } = location.state as {
+        documentTypeFilter?: '报告书' | '报告表';
+        categoryFilter?: '生态类' | '工业类';
+      };
+      
+      if (docTypeFilter) {
+        setDocumentTypeFilter(docTypeFilter);
+      }
+      if (catFilter) {
+        setCategoryFilter(catFilter);
+      }
+      
+      // 清除状态以避免重复设置
+      window.history.replaceState({}, '', location.pathname);
+    }
+  }, [location]);
+
+  // 项目分类
+  const projectCategories = [
+    '生态类',
+    '工业类'
+  ];
+
+  // 文档类型
+  const documentTypes = [
+    '报告书',
+    '报告表'
+  ];
 
   // 模拟项目数据
   const projects: Project[] = [
@@ -31,7 +69,9 @@ const PrivateDatabase = () => {
       createdAt: '2024-04-01',
       documentsCount: 12,
       lastModified: '2024-04-10 14:30',
-      isShared: false
+      isShared: false,
+      documentType: '报告书',
+      category: '生态类'
     },
     {
       id: '2',
@@ -41,7 +81,9 @@ const PrivateDatabase = () => {
       createdAt: '2024-03-15',
       documentsCount: 8,
       lastModified: '2024-04-09 16:20',
-      isShared: true
+      isShared: true,
+      documentType: '报告表',
+      category: '工业类'
     },
     {
       id: '3',
@@ -51,7 +93,9 @@ const PrivateDatabase = () => {
       createdAt: '2024-02-20',
       documentsCount: 15,
       lastModified: '2024-03-25 10:15',
-      isShared: false
+      isShared: false,
+      documentType: '报告书',
+      category: '生态类'
     },
     {
       id: '4',
@@ -61,17 +105,24 @@ const PrivateDatabase = () => {
       createdAt: '2024-01-10',
       documentsCount: 20,
       lastModified: '2024-02-15 09:30',
-      isShared: true
+      isShared: true,
+      documentType: '报告书',
+      category: '工业类'
     }
   ];
 
   const handleCreateProject = () => {
     if (newProjectName.trim()) {
       // 这里应该调用API创建项目
-      console.log('创建项目:', { name: newProjectName, description: newProjectDescription });
+      console.log('创建项目:', { 
+        name: newProjectName, 
+        description: newProjectDescription,
+        category: newProjectCategory 
+      });
       setShowCreateModal(false);
       setNewProjectName('');
       setNewProjectDescription('');
+      setNewProjectCategory('生态类');
       // 模拟创建成功后跳转到新项目
       const newProjectId = Date.now().toString();
       navigate(`/my-workspace/private/${newProjectId}`);
@@ -112,7 +163,9 @@ const PrivateDatabase = () => {
     const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          project.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = filter === 'all' || project.status === filter;
-    return matchesSearch && matchesFilter;
+    const matchesDocumentType = documentTypeFilter === 'all' || project.documentType === documentTypeFilter;
+    const matchesCategory = categoryFilter === 'all' || project.category === categoryFilter;
+    return matchesSearch && matchesFilter && matchesDocumentType && matchesCategory;
   });
 
   return (
@@ -132,39 +185,109 @@ const PrivateDatabase = () => {
         </button>
       </div>
 
-      {/* 筛选和搜索 */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex rounded-lg border border-gray-200 bg-white">
-          <button
-            onClick={() => setFilter('all')}
-            className={`px-4 py-2 text-sm font-medium ${
-              filter === 'all'
-                ? 'bg-primary-50 text-primary-700'
-                : 'text-gray-500 hover:text-gray-700'
-            } rounded-l-lg border-r border-gray-200`}
-          >
-            全部项目
-          </button>
-          <button
-            onClick={() => setFilter('active')}
-            className={`px-4 py-2 text-sm font-medium ${
-              filter === 'active'
-                ? 'bg-primary-50 text-primary-700'
-                : 'text-gray-500 hover:text-gray-700'
-            } border-r border-gray-200`}
-          >
-            进行中
-          </button>
-          <button
-            onClick={() => setFilter('completed')}
-            className={`px-4 py-2 text-sm font-medium ${
-              filter === 'completed'
-                ? 'bg-primary-50 text-primary-700'
-                : 'text-gray-500 hover:text-gray-700'
-            } rounded-r-lg`}
-          >
-            已完成
-          </button>
+      {/* 筛选器和搜索 */}
+      <div className="flex items-center justify-between gap-6">
+        <div className="flex items-center gap-6">
+          {/* 文档类型筛选 */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">文档类型:</span>
+            <div className="flex rounded-lg border border-gray-200 bg-white">
+              <button
+                onClick={() => setDocumentTypeFilter('all')}
+                className={`px-3 py-1.5 text-sm font-medium ${
+                  documentTypeFilter === 'all'
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'text-gray-500 hover:text-gray-700'
+                } rounded-l-lg border-r border-gray-200`}
+              >
+                全部
+              </button>
+              {documentTypes.map((type, index) => (
+                <button
+                  key={type}
+                  onClick={() => setDocumentTypeFilter(type as '报告书' | '报告表')}
+                  className={`px-3 py-1.5 text-sm font-medium ${
+                    documentTypeFilter === type
+                      ? 'bg-blue-50 text-blue-700'
+                      : 'text-gray-500 hover:text-gray-700'
+                  } ${
+                    index === documentTypes.length - 1 ? 'rounded-r-lg' : 'border-r border-gray-200'
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 项目分类筛选 */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">项目分类:</span>
+            <div className="flex rounded-lg border border-gray-200 bg-white">
+              <button
+                onClick={() => setCategoryFilter('all')}
+                className={`px-3 py-1.5 text-sm font-medium ${
+                  categoryFilter === 'all'
+                    ? 'bg-green-50 text-green-700'
+                    : 'text-gray-500 hover:text-gray-700'
+                } rounded-l-lg border-r border-gray-200`}
+              >
+                全部
+              </button>
+              {projectCategories.map((category, index) => (
+                <button
+                  key={category}
+                  onClick={() => setCategoryFilter(category as '生态类' | '工业类')}
+                  className={`px-3 py-1.5 text-sm font-medium ${
+                    categoryFilter === category
+                      ? 'bg-green-50 text-green-700'
+                      : 'text-gray-500 hover:text-gray-700'
+                  } ${
+                    index === projectCategories.length - 1 ? 'rounded-r-lg' : 'border-r border-gray-200'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 项目状态筛选 */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700">项目状态:</span>
+            <div className="flex rounded-lg border border-gray-200 bg-white">
+              <button
+                onClick={() => setFilter('all')}
+                className={`px-3 py-1.5 text-sm font-medium ${
+                  filter === 'all'
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-gray-500 hover:text-gray-700'
+                } rounded-l-lg border-r border-gray-200`}
+              >
+                全部
+              </button>
+              <button
+                onClick={() => setFilter('active')}
+                className={`px-3 py-1.5 text-sm font-medium ${
+                  filter === 'active'
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-gray-500 hover:text-gray-700'
+                } border-r border-gray-200`}
+              >
+                进行中
+              </button>
+              <button
+                onClick={() => setFilter('completed')}
+                className={`px-3 py-1.5 text-sm font-medium ${
+                  filter === 'completed'
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-gray-500 hover:text-gray-700'
+                } rounded-r-lg`}
+              >
+                已完成
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="relative w-64">
@@ -273,6 +396,31 @@ const PrivateDatabase = () => {
                   placeholder="请输入项目名称"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  项目分类 *
+                </label>
+                <div className="mt-2 flex rounded-lg border border-gray-200 bg-white">
+                  {projectCategories.map((category, index) => (
+                    <button
+                      key={category}
+                      onClick={() => setNewProjectCategory(category)}
+                      className={`px-4 py-2 text-sm font-medium ${
+                        newProjectCategory === category
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-500 hover:text-gray-700'
+                      } ${
+                        index === 0 ? 'rounded-l-lg' : ''
+                      } ${
+                        index === projectCategories.length - 1 ? 'rounded-r-lg' : 'border-r border-gray-200'
+                      }`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700">
@@ -294,6 +442,7 @@ const PrivateDatabase = () => {
                   setShowCreateModal(false);
                   setNewProjectName('');
                   setNewProjectDescription('');
+                  setNewProjectCategory('生态类');
                 }}
                 className="btn-outline"
               >

@@ -1,6 +1,7 @@
 
 import { FolderOpen, Calendar, FileText, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 interface SharedProject {
   id: string;
@@ -12,10 +13,19 @@ interface SharedProject {
   lastModified: string;
   sharedBy: string;
   sharedByAvatar?: string;
+  documentType: '报告书' | '报告表';
+  category: '生态类' | '工业类';
 }
 
 const SharedDatabase = () => {
   const navigate = useNavigate();
+
+  // 筛选状态
+  const [filters, setFilters] = useState({
+    documentType: '全部',
+    category: '全部',
+    status: '全部'
+  });
 
   const projects: SharedProject[] = [
     {
@@ -26,7 +36,9 @@ const SharedDatabase = () => {
       createdAt: '2024-04-01',
       documentsCount: 32,
       lastModified: '2024-04-10 14:30',
-      sharedBy: '张明'
+      sharedBy: '张明',
+      documentType: '报告书',
+      category: '生态类'
     },
     {
       id: '2',
@@ -36,7 +48,9 @@ const SharedDatabase = () => {
       createdAt: '2024-03-15',
       documentsCount: 28,
       lastModified: '2024-04-08 16:20',
-      sharedBy: '李华'
+      sharedBy: '李华',
+      documentType: '报告表',
+      category: '工业类'
     },
     {
       id: '3',
@@ -46,7 +60,9 @@ const SharedDatabase = () => {
       createdAt: '2024-02-20',
       documentsCount: 45,
       lastModified: '2024-03-25 10:15',
-      sharedBy: '王芳'
+      sharedBy: '王芳',
+      documentType: '报告书',
+      category: '工业类'
     },
     {
       id: '4',
@@ -56,7 +72,9 @@ const SharedDatabase = () => {
       createdAt: '2024-01-10',
       documentsCount: 18,
       lastModified: '2024-04-05 09:30',
-      sharedBy: '刘强'
+      sharedBy: '刘强',
+      documentType: '报告表',
+      category: '生态类'
     }
   ];
 
@@ -67,7 +85,19 @@ const SharedDatabase = () => {
     navigate(`/shared-database/${projectId}`);
   };
 
-  const filteredProjects = projects;
+  const handleFilterChange = (filterType: string, value: string) => {
+    setFilters(prev => ({ ...prev, [filterType]: value }));
+  };
+
+  const filteredProjects = projects.filter(project => {
+    // 文档类型筛选
+    const documentTypeMatch = filters.documentType === '全部' || project.documentType === filters.documentType;
+    
+    // 项目分类筛选
+    const categoryMatch = filters.category === '全部' || project.category === filters.category;
+
+    return documentTypeMatch && categoryMatch;
+  });
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -75,6 +105,51 @@ const SharedDatabase = () => {
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">共享空间</h1>
           <p className="text-sm text-gray-500">团队共享的项目</p>
+        </div>
+      </div>
+
+      {/* 筛选条件 */}
+      <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="flex flex-wrap items-center gap-6">
+          {/* 文档类型筛选 */}
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium text-gray-700">文档类型:</span>
+            <div className="flex space-x-1">
+              {['全部', '报告书', '报告表'].map((type) => (
+                <button
+                  key={type}
+                  onClick={() => handleFilterChange('documentType', type)}
+                  className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                    filters.documentType === type
+                      ? 'bg-blue-100 text-blue-700 border border-blue-300'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 项目分类筛选 */}
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium text-gray-700">项目分类:</span>
+            <div className="flex space-x-1">
+              {['全部', '生态类', '工业类'].map((category) => (
+                <button
+                  key={category}
+                  onClick={() => handleFilterChange('category', category)}
+                  className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                    filters.category === category
+                      ? 'bg-green-100 text-green-700 border border-green-300'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

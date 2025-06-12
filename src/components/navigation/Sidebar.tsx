@@ -11,7 +11,9 @@ import {
   ChevronDown,
   Globe,
   FileLock,
-  FolderCog
+  FolderCog,
+  Trash2,
+  LayoutDashboard
 } from 'lucide-react';
 
 type SidebarProps = {
@@ -23,9 +25,11 @@ const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
   const location = useLocation();
   
   const navigation = [
+    { name: '工作台', href: '/dashboard', icon: LayoutDashboard },
     { name: '我的空间', href: '/my-workspace/private', icon: FileLock },
     { name: '共享空间', href: '/shared-database', icon: Users },
     { name: '资料处理进度', href: '/my-workspace/process', icon: FileSpreadsheet },
+    { name: '回收站', href: '/my-workspace/recycle-bin', icon: Trash2 },
   ];
 
   return (
@@ -49,8 +53,10 @@ const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
         <nav className="flex-1 space-y-1 px-2 pb-4">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href || 
+              (item.href === '/dashboard' && location.pathname === '/dashboard') ||
               (item.href === '/my-workspace/private' && location.pathname.startsWith('/my-workspace/private')) ||
-              (item.href === '/my-workspace/process' && (location.pathname.startsWith('/my-workspace/process') || location.pathname.startsWith('/my-workspace/validation') || location.pathname.startsWith('/my-workspace/data-check')));
+              (item.href === '/my-workspace/process' && (location.pathname.startsWith('/my-workspace/process') || location.pathname.startsWith('/my-workspace/validation') || location.pathname.startsWith('/my-workspace/data-check'))) ||
+              (item.href === '/my-workspace/recycle-bin' && location.pathname.startsWith('/my-workspace/recycle-bin'));
 
             return (
               <Link

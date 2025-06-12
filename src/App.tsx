@@ -10,6 +10,7 @@ import ProcessStep3 from './pages/ProcessStep3';
 import DocumentValidation from './pages/DocumentValidation';
 import DataCheck from './pages/DataCheck';
 import DocumentEditor from './pages/DocumentEditor';
+import RecycleBin from './pages/RecycleBin';
 
 import PublicDatabase from './pages/databases/PublicDatabase';
 import SharedDatabase from './pages/databases/SharedDatabase';
@@ -24,7 +25,8 @@ function App() {
       {isAuthenticated ? (
         <>
           <Route path="/" element={<Layout />}>
-            <Route index element={<Navigate to="/my-workspace/private" replace />} />
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
             <Route path="public-knowledge" element={<PublicDatabase />} />
             <Route path="process" element={<DataProcessing />} />
             <Route path="process-step1/:id" element={<ProcessStep1 />} />
@@ -36,6 +38,7 @@ function App() {
             <Route path="my-workspace/data-check/:id" element={<DataCheck />} />
             <Route path="my-workspace/private" element={<PrivateDatabase />} />
             <Route path="my-workspace/private/:projectId" element={<ProjectDetail />} />
+            <Route path="my-workspace/recycle-bin" element={<RecycleBin />} />
             <Route path="shared-database" element={<SharedDatabase />} />
             <Route path="shared-database/:projectId" element={<ProjectDetail />} />
             <Route path="*" element={<Navigate to="/" replace />} />

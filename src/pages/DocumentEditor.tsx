@@ -117,48 +117,148 @@ const DocumentEditor = () => {
   const [sections, setSections] = useState<Section[]>([
     {
       id: '1',
-      title: '1. 项目概述',
-      content: '本项目位于...',
+      title: '一、建设内容',
+      content: '本章节主要介绍项目的建设内容和基本情况...',
       level: 1,
       children: [
         {
           id: '1-1',
-          title: '1.1 项目基本信息',
-          content: '项目名称：\n建设单位：\n建设地点：',
+          title: '1.项目由来',
+          content: '项目建设的背景、必要性和可行性...',
           level: 2
         },
         {
           id: '1-2',
-          title: '1.2 项目建设内容',
-          content: '建设规模：\n主要建设内容：',
-          level: 2
+          title: '2.项目概况',
+          content: '项目的基本概况和整体规划...',
+          level: 2,
+          children: [
+            {
+              id: '1-2-1',
+              title: '2.1实施地址及周边概况',
+              content: '项目实施地址的详细信息及周边环境概况...',
+              level: 3
+            },
+            {
+              id: '1-2-2',
+              title: '2.2项目内容、规模',
+              content: '项目建设内容和建设规模...',
+              level: 3
+            },
+            {
+              id: '1-2-3',
+              title: '2.3项目主要原辅材料',
+              content: '项目生产过程中使用的主要原辅材料...',
+              level: 3
+            },
+            {
+              id: '1-2-4',
+              title: '2.4项目生产设备',
+              content: '项目主要生产设备清单和技术参数...',
+              level: 3
+            },
+            {
+              id: '1-2-5',
+              title: '2.5平面布置',
+              content: '项目总平面布置及功能分区...',
+              level: 3
+            },
+            {
+              id: '1-2-6',
+              title: '2.6 定员与生产特点',
+              content: '项目劳动定员情况及生产特点...',
+              level: 3
+            },
+            {
+              id: '1-2-7',
+              title: '2.7公用工程',
+              content: '项目配套的公用工程设施...',
+              level: 3
+            }
+          ]
         }
       ]
     },
     {
       id: '2',
-      title: '2. 环境现状调查',
-      content: '根据现场调查和监测数据...',
+      title: '二、工艺流程和产排污环节',
+      content: '本章节分析项目的工艺流程及各环节的产排污情况...',
       level: 1,
       children: [
         {
           id: '2-1',
-          title: '2.1 自然环境',
-          content: '地理位置：\n地形地貌：\n气候条件：',
+          title: '1.运营期实施方案',
+          content: '项目运营期的具体实施方案和计划...',
+          level: 2
+        },
+        {
+          id: '2-2',
+          title: '2.运营期主要污染工序',
+          content: '运营期各工序的污染物产生及排放情况...',
           level: 2
         }
       ]
     },
     {
       id: '3',
-      title: '3. 环境影响预测',
-      content: '基于工程分析结果...',
-      level: 1
+      title: '三、与项目有关的原有环境污染问题',
+      content: '本章节分析与项目有关的原有环境污染问题...',
+      level: 1,
+      children: [
+        {
+          id: '3-1',
+          title: '1.企业现有项目审批及实施情况',
+          content: '企业现有项目的环保审批及实施情况...',
+          level: 2
+        },
+        {
+          id: '3-2',
+          title: '2.企业原审批工程及主要设备',
+          content: '企业原有审批工程的基本情况及主要设备...',
+          level: 2
+        },
+        {
+          id: '3-3',
+          title: '3.企业原审批工程原辅材料消耗',
+          content: '原审批工程的原辅材料使用情况...',
+          level: 2
+        },
+        {
+          id: '3-4',
+          title: '4.企业原审批工程工艺流程',
+          content: '原审批工程的工艺流程及产污环节...',
+          level: 2
+        },
+        {
+          id: '3-5',
+          title: '5.企业原审批工程环环保措施概况',
+          content: '原审批工程已采取的环保措施情况...',
+          level: 2
+        },
+        {
+          id: '3-6',
+          title: '6.现有污染源及达标性分析',
+          content: '现有污染源排放情况及达标性分析...',
+          level: 2
+        },
+        {
+          id: '3-7',
+          title: '7.企业原审批项目污染物源强汇总及总量控制指标',
+          content: '原审批项目污染物源强统计及总量控制要求...',
+          level: 2
+        },
+        {
+          id: '3-8',
+          title: '8.企业现状环保问题及改进建议',
+          content: '企业现状存在的环保问题及改进建议...',
+          level: 2
+        }
+      ]
     }
   ]);
 
   const [activeSection, setActiveSection] = useState<string>('1');
-  const [expandedSections, setExpandedSections] = useState<string[]>(['1', '2']);
+  const [expandedSections, setExpandedSections] = useState<string[]>(['1', '1-2', '2', '3']);
 
   // 模拟参考资料卡片数据
   const [referenceCards] = useState<ReferenceCard[]>([
@@ -298,6 +398,11 @@ const DocumentEditor = () => {
   // 编辑器模态框状态
   const [showFormulaEditor, setShowFormulaEditor] = useState(false);
   const [showFlowchartEditor, setShowFlowchartEditor] = useState(false);
+  
+  // 目录项编辑和菜单状态
+  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+  const [editingSectionTitle, setEditingSectionTitle] = useState('');
+  const [sectionMenuId, setSectionMenuId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState('');
   const [editingTitle, setEditingTitle] = useState('');
   const [editingTags, setEditingTags] = useState<string[]>([]);
@@ -460,6 +565,67 @@ const DocumentEditor = () => {
     };
     setSections(updateSections(sections));
     setExpandedSections(prev => [...prev, parentId]);
+  };
+
+  // 开始编辑章节标题
+  const startEditingSection = (sectionId: string, currentTitle: string) => {
+    setEditingSectionId(sectionId);
+    setEditingSectionTitle(currentTitle);
+    setSectionMenuId(null);
+  };
+
+  // 保存章节标题编辑
+  const saveEditingSection = () => {
+    if (!editingSectionId || !editingSectionTitle.trim()) return;
+    
+    const updateSection = (sections: Section[]): Section[] => {
+      return sections.map(section => {
+        if (section.id === editingSectionId) {
+          return { ...section, title: editingSectionTitle.trim() };
+        }
+        if (section.children) {
+          return { ...section, children: updateSection(section.children) };
+        }
+        return section;
+      });
+    };
+    
+    setSections(updateSection(sections));
+    setEditingSectionId(null);
+    setEditingSectionTitle('');
+  };
+
+  // 取消编辑章节标题
+  const cancelEditingSection = () => {
+    setEditingSectionId(null);
+    setEditingSectionTitle('');
+  };
+
+  // 删除章节
+  const deleteSection = (sectionId: string) => {
+    if (confirm('确认删除此章节及其所有子章节吗？此操作不可撤销。')) {
+      const updateSections = (sections: Section[]): Section[] => {
+        return sections.filter(section => {
+          if (section.id === sectionId) return false;
+          if (section.children) {
+            section.children = updateSections(section.children);
+          }
+          return true;
+        });
+      };
+      
+      setSections(updateSections(sections));
+      
+      // 如果删除的是当前选中章节，切换到第一个章节
+      if (activeSection === sectionId) {
+        const remainingSections = updateSections(sections);
+        if (remainingSections.length > 0) {
+          setActiveSection(remainingSections[0].id);
+        }
+      }
+      
+      setSectionMenuId(null);
+    }
   };
 
   // 编辑器工具栏功能
@@ -1002,6 +1168,12 @@ const DocumentEditor = () => {
       if (showModeDropdown) {
         setShowModeDropdown(false);
       }
+      // 关闭章节菜单
+      setSectionMenuId(null);
+      // 保存正在编辑的章节标题
+      if (editingSectionId) {
+        saveEditingSection();
+      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
@@ -1138,11 +1310,46 @@ const DocumentEditor = () => {
                     </button>
                   )}
                   <FileText className="h-3 w-3 mr-2 flex-shrink-0" />
-                  <span className="text-xs font-medium truncate flex-1">
-                    {section.title}
-                  </span>
-                  <button className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-gray-200">
-                    <MoreHorizontal className="h-3 w-3" />
+                  
+                  {editingSectionId === section.id ? (
+                    <input
+                      type="text"
+                      value={editingSectionTitle}
+                      onChange={(e) => setEditingSectionTitle(e.target.value)}
+                      onBlur={saveEditingSection}
+                      onKeyDown={(e) => {
+                        e.stopPropagation();
+                        if (e.key === 'Enter') {
+                          saveEditingSection();
+                        } else if (e.key === 'Escape') {
+                          cancelEditingSection();
+                        }
+                      }}
+                      className="text-xs font-medium bg-white border border-blue-500 rounded px-1 py-0.5 flex-1 min-w-0"
+                      autoFocus
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : (
+                    <span 
+                      className="text-xs font-medium truncate flex-1"
+                      onDoubleClick={(e) => {
+                        e.stopPropagation();
+                        startEditingSection(section.id, section.title);
+                      }}
+                    >
+                      {section.title}
+                    </span>
+                  )}
+                  
+                  <button 
+                    className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-100 text-red-500"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteSection(section.id);
+                    }}
+                    title="删除章节"
+                  >
+                    <X className="h-3 w-3" />
                   </button>
                 </div>
 
@@ -1150,22 +1357,133 @@ const DocumentEditor = () => {
                 {section.children && expandedSections.includes(section.id) && (
                   <div className="ml-3 mt-1">
                     {section.children.map((child) => (
-                      <div
-                        key={child.id}
-                        className={`flex items-center px-2 py-1.5 rounded-lg cursor-pointer group ${activeSection === child.id
-                            ? 'bg-blue-50 text-blue-700'
-                            : 'text-gray-600 hover:bg-gray-50'
-                          }`}
-                        onClick={() => setActiveSection(child.id)}
-                      >
-                        <div className="w-3 mr-1"></div>
-                        <FileText className="h-3 w-3 mr-1 flex-shrink-0" />
-                        <span className="text-xs truncate flex-1">
-                          {child.title}
-                        </span>
-                        <button className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-gray-200">
-                          <MoreHorizontal className="h-3 w-3" />
-                        </button>
+                      <div key={child.id} className="mb-1">
+                        <div
+                          className={`flex items-center px-2 py-1.5 rounded-lg cursor-pointer group ${activeSection === child.id
+                              ? 'bg-blue-50 text-blue-700'
+                              : 'text-gray-600 hover:bg-gray-50'
+                            }`}
+                          onClick={() => setActiveSection(child.id)}
+                        >
+                          {child.children && child.children.length > 0 && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleSectionExpanded(child.id);
+                              }}
+                              className="mr-1 p-0.5 rounded hover:bg-gray-200"
+                            >
+                              {expandedSections.includes(child.id) ? (
+                                <ChevronDown className="h-3 w-3" />
+                              ) : (
+                                <ChevronRight className="h-3 w-3" />
+                              )}
+                            </button>
+                          )}
+                          <div className="w-3 mr-1"></div>
+                          <FileText className="h-3 w-3 mr-1 flex-shrink-0" />
+                          
+                          {editingSectionId === child.id ? (
+                            <input
+                              type="text"
+                              value={editingSectionTitle}
+                              onChange={(e) => setEditingSectionTitle(e.target.value)}
+                              onBlur={saveEditingSection}
+                              onKeyDown={(e) => {
+                                e.stopPropagation();
+                                if (e.key === 'Enter') {
+                                  saveEditingSection();
+                                } else if (e.key === 'Escape') {
+                                  cancelEditingSection();
+                                }
+                              }}
+                              className="text-xs bg-white border border-blue-500 rounded px-1 py-0.5 flex-1 min-w-0"
+                              autoFocus
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          ) : (
+                            <span 
+                              className="text-xs truncate flex-1"
+                              onDoubleClick={(e) => {
+                                e.stopPropagation();
+                                startEditingSection(child.id, child.title);
+                              }}
+                            >
+                              {child.title}
+                            </span>
+                          )}
+                          
+                          <button 
+                            className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-red-100 text-red-500"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteSection(child.id);
+                            }}
+                            title="删除章节"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+
+                        {/* 三级子章节 */}
+                        {child.children && expandedSections.includes(child.id) && (
+                          <div className="ml-6 mt-1">
+                            {child.children.map((grandchild) => (
+                              <div
+                                key={grandchild.id}
+                                className={`flex items-center px-2 py-1 rounded-lg cursor-pointer group ${activeSection === grandchild.id
+                                    ? 'bg-blue-50 text-blue-700'
+                                    : 'text-gray-500 hover:bg-gray-50'
+                                  }`}
+                                onClick={() => setActiveSection(grandchild.id)}
+                              >
+                                <div className="w-3 mr-1"></div>
+                                <FileText className="h-2.5 w-2.5 mr-1 flex-shrink-0" />
+                                
+                                {editingSectionId === grandchild.id ? (
+                                  <input
+                                    type="text"
+                                    value={editingSectionTitle}
+                                    onChange={(e) => setEditingSectionTitle(e.target.value)}
+                                    onBlur={saveEditingSection}
+                                    onKeyDown={(e) => {
+                                      e.stopPropagation();
+                                      if (e.key === 'Enter') {
+                                        saveEditingSection();
+                                      } else if (e.key === 'Escape') {
+                                        cancelEditingSection();
+                                      }
+                                    }}
+                                    className="text-xs bg-white border border-blue-500 rounded px-1 py-0.5 flex-1 min-w-0"
+                                    autoFocus
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                ) : (
+                                  <span 
+                                    className="text-xs truncate flex-1"
+                                    onDoubleClick={(e) => {
+                                      e.stopPropagation();
+                                      startEditingSection(grandchild.id, grandchild.title);
+                                    }}
+                                  >
+                                    {grandchild.title}
+                                  </span>
+                                )}
+                                
+                                <button 
+                                  className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-red-100 text-red-500"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteSection(grandchild.id);
+                                  }}
+                                  title="删除章节"
+                                >
+                                  <X className="h-2.5 w-2.5" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
