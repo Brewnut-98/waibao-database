@@ -137,13 +137,41 @@ const DocumentEditor = () => {
               id: '1-2-1',
               title: '2.1实施地址及周边概况',
               content: '项目实施地址的详细信息及周边环境概况...',
-              level: 3
+              level: 3,
+              children: [
+                {
+                  id: '1-2-1-1',
+                  title: '2.1.1 地理位置',
+                  content: '项目具体地理位置坐标和行政区划...',
+                  level: 4
+                },
+                {
+                  id: '1-2-1-2',
+                  title: '2.1.2 周边环境敏感目标',
+                  content: '项目周边的环境敏感目标分布情况...',
+                  level: 4
+                }
+              ]
             },
             {
               id: '1-2-2',
               title: '2.2项目内容、规模',
               content: '项目建设内容和建设规模...',
-              level: 3
+              level: 3,
+              children: [
+                {
+                  id: '1-2-2-1',
+                  title: '2.2.1 建设规模',
+                  content: '项目建设的具体规模和建筑面积...',
+                  level: 4
+                },
+                {
+                  id: '1-2-2-2',
+                  title: '2.2.2 建设内容',
+                  content: '项目建设的主要内容和功能分区...',
+                  level: 4
+                }
+              ]
             },
             {
               id: '1-2-3',
@@ -258,7 +286,7 @@ const DocumentEditor = () => {
   ]);
 
   const [activeSection, setActiveSection] = useState<string>('1');
-  const [expandedSections, setExpandedSections] = useState<string[]>(['1', '1-2', '2', '3']);
+  const [expandedSections, setExpandedSections] = useState<string[]>(['1', '1-2', '1-2-1', '1-2-2', '2', '3']);
 
   // 模拟参考资料卡片数据
   const [referenceCards] = useState<ReferenceCard[]>([
@@ -541,17 +569,53 @@ const DocumentEditor = () => {
     setActiveSection(newSection.id);
   };
 
-  // 添加子章节
+  // 添加子章节 - 支持4级层级
   const addSubSection = (parentId: string) => {
+    const findParentSection = (sections: Section[], targetId: string): Section | null => {
+      for (const section of sections) {
+        if (section.id === targetId) return section;
+        if (section.children) {
+          const found = findParentSection(section.children, targetId);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const parentSection = findParentSection(sections, parentId);
+    if (!parentSection) return;
+
     const updateSections = (sections: Section[]): Section[] => {
       return sections.map(section => {
         if (section.id === parentId) {
+          const currentLevel = section.level;
+          const childCount = section.children?.length || 0;
+          let newTitle = '';
+          
+          // 根据层级生成不同格式的标题
+          switch (currentLevel) {
+            case 1:
+              newTitle = `${childCount + 1}.新子章节`;
+              break;
+            case 2:
+              const parentNumber = section.title.split('.')[0];
+              newTitle = `${parentNumber}.${childCount + 1} 新子章节`;
+              break;
+            case 3:
+              const parentParts = section.title.split(' ')[0].split('.');
+              newTitle = `${parentParts[0]}.${parentParts[1]}.${childCount + 1} 新子章节`;
+              break;
+            default:
+              newTitle = `新子章节 ${childCount + 1}`;
+          }
+
           const newSubSection: Section = {
             id: `${parentId}-${Date.now()}`,
-            title: `${section.title.split('.')[0]}.${(section.children?.length || 0) + 1} 新子章节`,
+            title: newTitle,
             content: '',
-            level: 2
+            level: Math.min(currentLevel + 1, 4) // 限制最大4级
           };
+          
           return {
             ...section,
             children: [...(section.children || []), newSubSection]
@@ -563,6 +627,7 @@ const DocumentEditor = () => {
         return section;
       });
     };
+    
     setSections(updateSections(sections));
     setExpandedSections(prev => [...prev, parentId]);
   };
@@ -1341,16 +1406,30 @@ const DocumentEditor = () => {
                     </span>
                   )}
                   
-                  <button 
-                    className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-100 text-red-500"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteSection(section.id);
-                    }}
-                    title="删除章节"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
+                  <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100">
+                    {section.level < 4 && (
+                      <button 
+                        className="p-1 rounded hover:bg-green-100 text-green-600"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addSubSection(section.id);
+                        }}
+                        title="添加子章节"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </button>
+                    )}
+                    <button 
+                      className="p-1 rounded hover:bg-red-100 text-red-500"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteSection(section.id);
+                      }}
+                      title="删除章节"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* 子章节 */}
@@ -1413,73 +1492,178 @@ const DocumentEditor = () => {
                             </span>
                           )}
                           
-                          <button 
-                            className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-red-100 text-red-500"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteSection(child.id);
-                            }}
-                            title="删除章节"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
+                          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100">
+                            {child.level < 4 && (
+                              <button 
+                                className="p-0.5 rounded hover:bg-green-100 text-green-600"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  addSubSection(child.id);
+                                }}
+                                title="添加子章节"
+                              >
+                                <Plus className="h-3 w-3" />
+                              </button>
+                            )}
+                            <button 
+                              className="p-0.5 rounded hover:bg-red-100 text-red-500"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteSection(child.id);
+                              }}
+                              title="删除章节"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
                         </div>
 
                         {/* 三级子章节 */}
                         {child.children && expandedSections.includes(child.id) && (
                           <div className="ml-6 mt-1">
                             {child.children.map((grandchild) => (
-                              <div
-                                key={grandchild.id}
-                                className={`flex items-center px-2 py-1 rounded-lg cursor-pointer group ${activeSection === grandchild.id
-                                    ? 'bg-blue-50 text-blue-700'
-                                    : 'text-gray-500 hover:bg-gray-50'
-                                  }`}
-                                onClick={() => setActiveSection(grandchild.id)}
-                              >
-                                <div className="w-3 mr-1"></div>
-                                <FileText className="h-2.5 w-2.5 mr-1 flex-shrink-0" />
-                                
-                                {editingSectionId === grandchild.id ? (
-                                  <input
-                                    type="text"
-                                    value={editingSectionTitle}
-                                    onChange={(e) => setEditingSectionTitle(e.target.value)}
-                                    onBlur={saveEditingSection}
-                                    onKeyDown={(e) => {
-                                      e.stopPropagation();
-                                      if (e.key === 'Enter') {
-                                        saveEditingSection();
-                                      } else if (e.key === 'Escape') {
-                                        cancelEditingSection();
-                                      }
-                                    }}
-                                    className="text-xs bg-white border border-blue-500 rounded px-1 py-0.5 flex-1 min-w-0"
-                                    autoFocus
-                                    onClick={(e) => e.stopPropagation()}
-                                  />
-                                ) : (
-                                  <span 
-                                    className="text-xs truncate flex-1"
-                                    onDoubleClick={(e) => {
-                                      e.stopPropagation();
-                                      startEditingSection(grandchild.id, grandchild.title);
-                                    }}
-                                  >
-                                    {grandchild.title}
-                                  </span>
-                                )}
-                                
-                                <button 
-                                  className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-red-100 text-red-500"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    deleteSection(grandchild.id);
-                                  }}
-                                  title="删除章节"
+                              <div key={grandchild.id} className="mb-1">
+                                <div
+                                  className={`flex items-center px-2 py-1 rounded-lg cursor-pointer group ${activeSection === grandchild.id
+                                      ? 'bg-blue-50 text-blue-700'
+                                      : 'text-gray-500 hover:bg-gray-50'
+                                    }`}
+                                  onClick={() => setActiveSection(grandchild.id)}
                                 >
-                                  <X className="h-2.5 w-2.5" />
-                                </button>
+                                  {grandchild.children && grandchild.children.length > 0 && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleSectionExpanded(grandchild.id);
+                                      }}
+                                      className="mr-1 p-0.5 rounded hover:bg-gray-200"
+                                    >
+                                      {expandedSections.includes(grandchild.id) ? (
+                                        <ChevronDown className="h-2.5 w-2.5" />
+                                      ) : (
+                                        <ChevronRight className="h-2.5 w-2.5" />
+                                      )}
+                                    </button>
+                                  )}
+                                  <div className="w-3 mr-1"></div>
+                                  <FileText className="h-2.5 w-2.5 mr-1 flex-shrink-0" />
+                                  
+                                  {editingSectionId === grandchild.id ? (
+                                    <input
+                                      type="text"
+                                      value={editingSectionTitle}
+                                      onChange={(e) => setEditingSectionTitle(e.target.value)}
+                                      onBlur={saveEditingSection}
+                                      onKeyDown={(e) => {
+                                        e.stopPropagation();
+                                        if (e.key === 'Enter') {
+                                          saveEditingSection();
+                                        } else if (e.key === 'Escape') {
+                                          cancelEditingSection();
+                                        }
+                                      }}
+                                      className="text-xs bg-white border border-blue-500 rounded px-1 py-0.5 flex-1 min-w-0"
+                                      autoFocus
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                  ) : (
+                                    <span 
+                                      className="text-xs truncate flex-1"
+                                      onDoubleClick={(e) => {
+                                        e.stopPropagation();
+                                        startEditingSection(grandchild.id, grandchild.title);
+                                      }}
+                                    >
+                                      {grandchild.title}
+                                    </span>
+                                  )}
+                                  
+                                  <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100">
+                                    {grandchild.level < 4 && (
+                                      <button 
+                                        className="p-0.5 rounded hover:bg-green-100 text-green-600"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          addSubSection(grandchild.id);
+                                        }}
+                                        title="添加子章节"
+                                      >
+                                        <Plus className="h-2.5 w-2.5" />
+                                      </button>
+                                    )}
+                                    <button 
+                                      className="p-0.5 rounded hover:bg-red-100 text-red-500"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        deleteSection(grandchild.id);
+                                      }}
+                                      title="删除章节"
+                                    >
+                                      <X className="h-2.5 w-2.5" />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* 四级子章节 */}
+                                {grandchild.children && expandedSections.includes(grandchild.id) && (
+                                  <div className="ml-8 mt-1">
+                                    {grandchild.children.map((greatGrandchild) => (
+                                      <div
+                                        key={greatGrandchild.id}
+                                        className={`flex items-center px-2 py-1 rounded-lg cursor-pointer group ${activeSection === greatGrandchild.id
+                                            ? 'bg-blue-50 text-blue-700'
+                                            : 'text-gray-400 hover:bg-gray-50'
+                                          }`}
+                                        onClick={() => setActiveSection(greatGrandchild.id)}
+                                      >
+                                        <div className="w-3 mr-1"></div>
+                                        <div className="w-3 mr-1"></div>
+                                        <FileText className="h-2 w-2 mr-1 flex-shrink-0" />
+                                        
+                                        {editingSectionId === greatGrandchild.id ? (
+                                          <input
+                                            type="text"
+                                            value={editingSectionTitle}
+                                            onChange={(e) => setEditingSectionTitle(e.target.value)}
+                                            onBlur={saveEditingSection}
+                                            onKeyDown={(e) => {
+                                              e.stopPropagation();
+                                              if (e.key === 'Enter') {
+                                                saveEditingSection();
+                                              } else if (e.key === 'Escape') {
+                                                cancelEditingSection();
+                                              }
+                                            }}
+                                            className="text-xs bg-white border border-blue-500 rounded px-1 py-0.5 flex-1 min-w-0"
+                                            autoFocus
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        ) : (
+                                          <span 
+                                            className="text-xs truncate flex-1"
+                                            onDoubleClick={(e) => {
+                                              e.stopPropagation();
+                                              startEditingSection(greatGrandchild.id, greatGrandchild.title);
+                                            }}
+                                          >
+                                            {greatGrandchild.title}
+                                          </span>
+                                        )}
+                                        
+                                        <button 
+                                          className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-red-100 text-red-500"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            deleteSection(greatGrandchild.id);
+                                          }}
+                                          title="删除章节"
+                                        >
+                                          <X className="h-2 w-2" />
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>

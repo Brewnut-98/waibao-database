@@ -11,6 +11,8 @@ import DocumentValidation from './pages/DocumentValidation';
 import DataCheck from './pages/DataCheck';
 import DocumentEditor from './pages/DocumentEditor';
 import RecycleBin from './pages/RecycleBin';
+import TemplateList from './pages/TemplateList';
+import TemplateEditor from './pages/TemplateEditor';
 
 import PublicDatabase from './pages/databases/PublicDatabase';
 import SharedDatabase from './pages/databases/SharedDatabase';
@@ -39,6 +41,9 @@ function App() {
             <Route path="my-workspace/private" element={<PrivateDatabase />} />
             <Route path="my-workspace/private/:projectId" element={<ProjectDetail />} />
             <Route path="my-workspace/recycle-bin" element={<RecycleBin />} />
+            <Route path="template-creation" element={<TemplateList />} />
+            <Route path="template/new" element={<TemplateEditor />} />
+            <Route path="template/edit/:templateId" element={<TemplateEditor />} />
             <Route path="shared-database" element={<SharedDatabase />} />
             <Route path="shared-database/:projectId" element={<ProjectDetail />} />
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -29,6 +29,7 @@ const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
     { name: '我的空间', href: '/my-workspace/private', icon: FileLock },
     { name: '共享空间', href: '/shared-database', icon: Users },
     { name: '资料处理进度', href: '/my-workspace/process', icon: FileSpreadsheet },
+    { name: '创建模板', href: '/template-creation', icon: FolderCog },
     { name: '回收站', href: '/my-workspace/recycle-bin', icon: Trash2 },
   ];
 
@@ -56,6 +57,7 @@ const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
               (item.href === '/dashboard' && location.pathname === '/dashboard') ||
               (item.href === '/my-workspace/private' && location.pathname.startsWith('/my-workspace/private')) ||
               (item.href === '/my-workspace/process' && (location.pathname.startsWith('/my-workspace/process') || location.pathname.startsWith('/my-workspace/validation') || location.pathname.startsWith('/my-workspace/data-check'))) ||
+              (item.href === '/template-creation' && location.pathname.startsWith('/template-creation')) ||
               (item.href === '/my-workspace/recycle-bin' && location.pathname.startsWith('/my-workspace/recycle-bin'));
 
             return (
